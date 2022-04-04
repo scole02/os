@@ -8,15 +8,19 @@ assembly_source_files := $(wildcard src/arch/$(arch)/*.asm)
 assembly_object_files := $(patsubst src/arch/$(arch)/%.asm, \
 	build/arch/$(arch)/%.o, $(assembly_source_files))
 
-.PHONY: all clean run iso
+img_path := build/foo.img
+BLOCKSIZE := 512
+NUM_BLOCKS := 32768
+
+.PHONY: all clean run iso img
 
 all: $(kernel)
 
 clean:
-	@rm -r build
+	@yes | rm -r build
 
-run: $(iso)
-	@qemu-system-x86_64 -cdrom $(iso)
+run: $(img)
+	@sudo qemu-system-x86_64 -hda $(img_path)
 
 iso: $(iso)
 
@@ -34,3 +38,9 @@ $(kernel): $(assembly_object_files) $(linker_script)
 build/arch/$(arch)/%.o: src/arch/$(arch)/%.asm
 	@mkdir -p $(shell dirname $@)
 	@nasm -felf64 $< -o $@
+
+img:	$(kernel) $(grub_cfg)
+	@mkdir -p build/img.img/boot/grub/i386-pc
+	@cp $(kernel) build/img.img/boot/kernel.bin
+	@cp $(grub_cfg) build/img.img/boot/grub
+	@sudo ./make_img.sh
