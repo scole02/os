@@ -17,9 +17,12 @@ void VGA_clear(void)
 void scroll_text(void)
 {
     char * second_row = (char*)VGA_BASE_ADDR + VGA_COLS*VGA_CHAR_SIZE;
-    memcpy((char*)VGA_BASE_ADDR, second_row,  VGA_CHAR_SIZE * (VGA_COLS-1) * (VGA_ROWS -1));
-    //memset((char*)VGA_BASE_ADDR + (VGA_ROWS-1)*(VGA_COLS-1)*VGA_CHAR_SIZE, 0, VGA_CHAR_SIZE * (VGA_COLS-1));
-    cur_byte_offset -= cur_byte_offset % (VGA_CHAR_SIZE * VGA_COLS); 
+    memcpy((char*)VGA_BASE_ADDR, second_row,  VGA_CHAR_SIZE * VGA_COLS * (VGA_ROWS-1) );
+   
+    cur_byte_offset = (cur_byte_offset > VGA_COLS * VGA_CHAR_SIZE) ? cur_byte_offset - (cur_byte_offset % (VGA_COLS*VGA_CHAR_SIZE)) : 0; // set cur to beginning of current line
+ // clear current line
+ memset((char*)VGA_BASE_ADDR + cur_byte_offset, 0, VGA_CHAR_SIZE * VGA_COLS);
+
 }
 void VGA_display_char(char c)
 {
@@ -33,6 +36,14 @@ void VGA_display_char(char c)
     cur_byte_offset += sizeof(vga_char);
 }
 
+void VGA_display_str(const char *str)
+{
+  while(*str)
+  {
+    VGA_display_char(*str);
+    str++;
+  }
+}
 // TODO:
 // move cursor after scrolling correctly
 // display_str
