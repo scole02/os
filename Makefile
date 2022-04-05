@@ -1,7 +1,16 @@
+CC = ~/opt/cross/bin/$(arch)-elf-gcc
+CC_warning_flags = -Wbuiltin-declaration-mismatch #not used
 arch ?= x86_64
 kernel := build/kernel-$(arch).bin
 iso := build/os-$(arch).iso
 
+
+vga_src := src/arch/$(arch)/vga.c
+vga_obj := build/arch/$(arch)/vga.o
+string_src := src/arch/$(arch)/my_string.c
+string_obj := build/arch/$(arch)/my_string.o
+kmain_src := src/arch/$(arch)/kmain.c
+kmain_obj := build/arch/$(arch)/kmain.o
 linker_script := src/arch/$(arch)/linker.ld
 grub_cfg := src/arch/$(arch)/grub.cfg
 assembly_source_files := $(wildcard src/arch/$(arch)/*.asm)
@@ -19,7 +28,7 @@ all: $(kernel)
 clean:
 	@yes | rm -r build
 
-run: $(img)
+run:
 	@sudo qemu-system-x86_64 -hda $(img_path)
 
 iso: $(iso)
@@ -32,8 +41,10 @@ $(iso): $(kernel) $(grub_cfg)
 	@rm -r build/isofiles
 
 $(kernel): $(assembly_object_files) $(linker_script)
-	@ld -n -T $(linker_script) -o $(kernel) $(assembly_object_files)
-
+	$(CC) -g -c $(kmain_src) -o $(kmain_obj) 
+	$(CC) -g -c $(string_src) -o $(string_obj)
+	$(CC) -g -c $(vga_src) -o $(vga_obj)
+	@ld -n -T $(linker_script) -o $(kernel) $(assembly_object_files) $(kmain_obj) $(string_obj) $(vga_obj)
 # compile assembly files
 build/arch/$(arch)/%.o: src/arch/$(arch)/%.asm
 	@mkdir -p $(shell dirname $@)
