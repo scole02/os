@@ -7,33 +7,46 @@
 #define VGA_CHAR_SIZE 2
 
 int cur_byte_offset = 0; // location in bytes of next char to be written
+unsigned short * VGA_buf = (short*)VGA_BASE_ADDR;
 
 void VGA_clear(void)
 {
     // set entire buffer to 0, each vga location is 2 bytes
-    memset((void*)VGA_BASE_ADDR, 0,  VGA_ROWS * VGA_COLS * 2); 
+    memset(VGA_buf, 0,  VGA_ROWS * VGA_COLS * VGA_CHAR_SIZE); 
 }
 
-void scroll_text(void)
+void _scroll_text(void)
 {
-    char * second_row = (char*)VGA_BASE_ADDR + VGA_COLS*VGA_CHAR_SIZE;
-    memcpy((char*)VGA_BASE_ADDR, second_row,  VGA_CHAR_SIZE * VGA_COLS * (VGA_ROWS-1) );
+    unsigned short * second_row = VGA_buf + VGA_COLS*VGA_CHAR_SIZE;
+    memcpy(VGA_buf, second_row,  VGA_CHAR_SIZE * VGA_COLS * (VGA_ROWS-1) );
    
     cur_byte_offset = (cur_byte_offset > VGA_COLS * VGA_CHAR_SIZE) ? cur_byte_offset - (cur_byte_offset % (VGA_COLS*VGA_CHAR_SIZE)) : 0; // set cur to beginning of current line
  // clear current line
- memset((char*)VGA_BASE_ADDR + cur_byte_offset, 0, VGA_CHAR_SIZE * VGA_COLS);
+ memset(VGA_buf + cur_byte_offset, 0, VGA_CHAR_SIZE * VGA_COLS);
 
 }
 void VGA_display_char(char c)
 {
     short int vga_char = COLOR | c;
-    
-    if (cur_byte_offset >= (VGA_COLS-1) * (VGA_ROWS-1) * sizeof(vga_char))
+    int res = VGA_COLS * VGA_CHAR_SIZE;    
+    if (c == '\n') // newline
     {
-        memcpy((char*)VGA_BASE_ADDR, (char*)VGA_BASE_ADDR + VGA_COLS*sizeof(vga_char), sizeof(vga_char) * (VGA_COLS-1) * (VGA_ROWS -1));
+        // set offset to beginning of next row
+        cur_byte_offset = ((cur_byte_offset/res) * res) + res;
     }
-    memcpy((char*)VGA_BASE_ADDR + cur_byte_offset, &vga_char, sizeof(vga_char)); 
-    cur_byte_offset += sizeof(vga_char);
+    
+    // reached end of display
+    if (cur_byte_offset + 1  >= VGA_COLS * VGA_ROWS * VGA_CHAR_SIZE)
+    {
+       _scroll_text();
+        //memcpy(VGA_buf, VGA_buf + VGA_COLS*sizeof(vga_char), sizeof(vga_char) * (VGA_COLS-1) * (VGA_ROWS -1));
+    }
+    if (c == '\n')
+        return;
+  
+    //memcpy((char*)VGA_BASE_ADDR + cur_byte_offset, &vga_char, sizeof(vga_char)); 
+    VGA_buf[cur_byte_offset] = vga_char;
+    cur_byte_offset++;
 }
 
 void VGA_display_str(const char *str)
