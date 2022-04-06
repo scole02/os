@@ -23,7 +23,7 @@ void print_short(short s)
     VGA_display_str(num_str); 
 }
 
-void print_long_hex(long l);
+void print_long_hex(long l)
 {   
     char * num_str;
     ltoa(l, num_str, BASE16);
