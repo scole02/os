@@ -17,27 +17,28 @@ void VGA_clear(void)
 
 void _scroll_text(void)
 {
-    unsigned short * second_row = VGA_buf + VGA_COLS*VGA_CHAR_SIZE;
+    unsigned short * second_row = VGA_buf + VGA_COLS;
     memcpy(VGA_buf, second_row,  VGA_CHAR_SIZE * VGA_COLS * (VGA_ROWS-1) );
    
-    cur_byte_offset = (cur_byte_offset > VGA_COLS * VGA_CHAR_SIZE) ? cur_byte_offset - (cur_byte_offset % (VGA_COLS*VGA_CHAR_SIZE)) : 0; // set cur to beginning of current line
- // clear current line
- memset(VGA_buf + cur_byte_offset, 0, VGA_CHAR_SIZE * VGA_COLS);
-
+    // set cur to beginning of current line
+    cur_byte_offset = cur_byte_offset > VGA_COLS ? cur_byte_offset - (cur_byte_offset % VGA_COLS) : 0; 
+     // clear current line
+     memset(VGA_buf + cur_byte_offset, 0, VGA_CHAR_SIZE * VGA_COLS);
 }
 void VGA_display_char(char c)
 {
     short int vga_char = COLOR | c;
-    int res = VGA_COLS * VGA_CHAR_SIZE;    
     if (c == '\n') // newline
     {
         // set offset to beginning of next row
-        cur_byte_offset = ((cur_byte_offset/res) * res) + res;
+        cur_byte_offset = ((cur_byte_offset/VGA_COLS) * VGA_COLS) + VGA_COLS;
     }
     
     // reached end of display
-    if (cur_byte_offset + 1  >= VGA_COLS * VGA_ROWS * VGA_CHAR_SIZE)
+    if (cur_byte_offset  >= VGA_COLS * VGA_ROWS)
     {
+       // set offset to beginning of last row
+       cur_byte_offset = VGA_COLS * (VGA_ROWS-1);
        _scroll_text();
         //memcpy(VGA_buf, VGA_buf + VGA_COLS*sizeof(vga_char), sizeof(vga_char) * (VGA_COLS-1) * (VGA_ROWS -1));
     }

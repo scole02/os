@@ -7,17 +7,24 @@ void kmain()
     const char * str2 = "lol\n";
     
     int i = 0;
-   // while(!i);
+    //while(!i);
     //VGA_clear();
-    for (i=0;i<27;i++)
+    for (i=0;i<25;i++)
     {
         if(i%2) VGA_display_str(str1); 
         else VGA_display_str(str2);
-        for(int i=0; i <30000000; i++)
+        for(int i=0; i <3000000; i++)
             asm volatile("");
     } 
-    VGA_display_char('\n');
-    VGA_display_str(str2); 
+    for(int i=0; i <30000000; i++)
+        asm volatile("");
+    VGA_display_str("verrryyyyyyyyyyyyyy loooooonnnnnnggggggggggggg sssssstttttttrrrrrrrriiiinnnnnggg");
+    for(int i=0; i <800000000; i++)
+        asm volatile("");
+    VGA_display_str(str2);
+    short * VGA_b = 0xb8000;
+    VGA_b[159] = 0x2f69;
+ 
 // VGA_display_char('H');
    // VGA_display_char('E');
    // VGA_display_char('L');
