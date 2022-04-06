@@ -1,4 +1,5 @@
 CC = ~/opt/cross/bin/$(arch)-elf-gcc
+CFLAGS = -c -g 
 CC_warning_flags = -Wbuiltin-declaration-mismatch #not used
 arch ?= x86_64
 kernel := build/kernel-$(arch).bin
@@ -29,7 +30,7 @@ clean:
 	@yes | rm -r build
 
 run:
-	@sudo qemu-system-x86_64 -hda $(img_path)
+	@sudo qemu-system-x86_64 -s -drive format=raw,file=$(img_path) -serial stdio
 
 iso: $(iso)
 
@@ -41,9 +42,9 @@ $(iso): $(kernel) $(grub_cfg)
 	@rm -r build/isofiles
 
 $(kernel): $(assembly_object_files) $(linker_script)
-	$(CC) -g -c $(kmain_src) -o $(kmain_obj) 
-	$(CC) -g -c $(string_src) -o $(string_obj)
-	$(CC) -g -c $(vga_src) -o $(vga_obj)
+	$(CC) -c -g  $(kmain_src) -o $(kmain_obj) 
+	$(CC) -c -g $(string_src) -o $(string_obj)
+	$(CC) -c -g $(vga_src) -o $(vga_obj)
 	@ld -n -T $(linker_script) -o $(kernel) $(assembly_object_files) $(kmain_obj) $(string_obj) $(vga_obj)
 # compile assembly files
 build/arch/$(arch)/%.o: src/arch/$(arch)/%.asm
