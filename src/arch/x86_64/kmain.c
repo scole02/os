@@ -1,5 +1,6 @@
 #include "my_string.h"
 #include "vga.h"
+#include "printk.h"
 void kmain()
 {
     volatile int text = 0x57695748;
@@ -11,34 +12,19 @@ void kmain()
     //VGA_clear();
     for (i=0;i<25;i++)
     {
-        if(i%2) VGA_display_str(str1); 
+        if(i%2) printk("%%%s %s %c %%\n", "THE", "Base", '!'); 
         else VGA_display_str(str2);
         for(int i=0; i <3000000; i++)
             asm volatile("");
     } 
-    for(int i=0; i <30000000; i++)
-        asm volatile("");
-    VGA_display_str("verrryyyyyyyyyyyyyy loooooonnnnnnggggggggggggg sssssstttttttrrrrrrrriiiinnnnnggg");
-    for(int i=0; i <800000000; i++)
-        asm volatile("");
-    VGA_display_str(str2);
-    short * VGA_b = 0xb8000;
-    VGA_b[159] = 0x2f69;
+    // for(int i=0; i <30000000; i++)
+    //     asm volatile("");
+    // VGA_display_str("verrryyyyyyyyyyyyyy loooooonnnnnnggggggggggggg sssssstttttttrrrrrrrriiiinnnnnggg");
+    // for(int i=0; i <80000000; i++)
+    //     asm volatile("");
+    // VGA_display_str(str2);
+    // short * VGA_b = 0xb8000;
  
-// VGA_display_char('H');
-   // VGA_display_char('E');
-   // VGA_display_char('L');
-   // VGA_display_char('L');
-   // VGA_display_char('O');
-   // scroll_text();
-   // VGA_display_char(' ');
-   // VGA_display_char('W');
-   // VGA_display_char('O');
-   // VGA_display_char('R');
-   // VGA_display_char('L');
-   // VGA_display_char('D');
-    //memcpy((int*)0xb8000, (void*)&text, 4); // write text
-    //*((int*)0xb8000)=0x57695748; // write hi in purple
     while(1)
     {
         asm volatile(//"mov qword %[0xb8000], $0x2f4b2f4b\n\t"

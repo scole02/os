@@ -58,8 +58,4 @@ void VGA_display_str(const char *str)
     str++;
   }
 }
-// TODO:
-// move cursor after scrolling correctly
-// display_str
-// detect newlines
-// zero out bottom row
+

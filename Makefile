@@ -5,7 +5,10 @@ arch ?= x86_64
 kernel := build/kernel-$(arch).bin
 iso := build/os-$(arch).iso
 
-
+libutils_src := src/arch/$(arch)/libutils.c
+libutils_obj := build/arch/$(arch)/libutils.o
+printk_src := src/arch/$(arch)/printk.c
+printk_obj := build/arch/$(arch)/printk.o
 vga_src := src/arch/$(arch)/vga.c
 vga_obj := build/arch/$(arch)/vga.o
 string_src := src/arch/$(arch)/my_string.c
@@ -45,7 +48,9 @@ $(kernel): $(assembly_object_files) $(linker_script)
 	$(CC) -c -g  $(kmain_src) -o $(kmain_obj) 
 	$(CC) -c -g $(string_src) -o $(string_obj)
 	$(CC) -c -g $(vga_src) -o $(vga_obj)
-	@ld -n -T $(linker_script) -o $(kernel) $(assembly_object_files) $(kmain_obj) $(string_obj) $(vga_obj)
+	$(CC) -c -g $(printk_src) -o $(printk_obj)
+	$(CC) -c -g $(libutils_src) -o $(libutils_obj)
+	@ld -n -T $(linker_script) -o $(kernel) $(assembly_object_files) $(kmain_obj) $(string_obj) $(vga_obj) $(libutils_obj) $(printk_obj)
 # compile assembly files
 build/arch/$(arch)/%.o: src/arch/$(arch)/%.asm
 	@mkdir -p $(shell dirname $@)

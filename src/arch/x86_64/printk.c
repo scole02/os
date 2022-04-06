@@ -30,24 +30,25 @@ void print_long_hex(long l)
     VGA_display_str(num_str); 
 }
 
-int printk(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)))
+int printk(const char *fmt, ...)
 {
+
     va_list args;
     char fmt_specifier;
-    char * str = fmt;
+    //char * str = fmt;
     va_start(args, fmt);
     
 
-    while(*str) // check for null terminator
+    while(*fmt) // check for null terminator
     {
-        if (*str == '%') // format specifier reached
+        if (*fmt == '%') // format specifier reached
         {
-            str++;
-            fmt_specifier = *str;
+            fmt++;
+            fmt_specifier = *fmt;
             if (fmt_specifier == '%') // special case where we dont fetch an arg
             {
                 print_char('%');
-                str++;
+                fmt++;
                 continue;
             }
             switch(fmt_specifier)
@@ -55,10 +56,22 @@ int printk(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)))
                 case 'd': // int
                     print_int(va_arg(args, int));
                     break;
+                
+                case 's':
+                    print_str(va_arg(args, char *));
+                    break;
+                
+                case 'c':
+                    print_char(va_arg(args, int));
+                    break;
+                    
+                case 'u':
+                    print_int(va_arg(args, unsigned int));
+                    break;
             }
-            return;
         } 
-        else print_char(*str);
-        str++;
+        else print_char(*fmt);
+        fmt++;
     }
+    return 0;
 }   

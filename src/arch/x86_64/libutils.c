@@ -7,7 +7,6 @@ char * itoa( int value, char * str, int base)
     char * rc;
     char * ptr;
     char * low;
-    int base = 10; 
     rc = ptr = str;
     // Set '-' for negative decimals.
     if ( value < 0 && base == 10 )
@@ -40,7 +39,6 @@ char * ltoa( long value, char * str, int base)
     char * rc;
     char * ptr;
     char * low;
-    int base = 10; 
     rc = ptr = str;
     // Set '-' for negative decimals.
     if ( value < 0 && base == 10 )
