@@ -1,6 +1,6 @@
 CC = ~/opt/cross/bin/$(arch)-elf-gcc
 CFLAGS = -c -g 
-CC_warning_flags = -Wbuiltin-declaration-mismatch #not used
+CC_warning_flags = -Wno-builtin-declaration-mismatch #not used
 arch ?= x86_64
 kernel := build/kernel-$(arch).bin
 iso := build/os-$(arch).iso
@@ -45,12 +45,14 @@ $(iso): $(kernel) $(grub_cfg)
 	@rm -r build/isofiles
 
 $(kernel): $(assembly_object_files) $(linker_script)
-	$(CC) -c -g  $(kmain_src) -o $(kmain_obj) 
-	$(CC) -c -g $(string_src) -o $(string_obj)
-	$(CC) -c -g $(vga_src) -o $(vga_obj)
-	$(CC) -c -g $(printk_src) -o $(printk_obj)
-	$(CC) -c -g $(libutils_src) -o $(libutils_obj)
+	$(CC) $(CC_warning_flags)-c -g $(kmain_src) -o $(kmain_obj) 
+	$(CC) $(CC_warning_flags)-c -g $(string_src) -o $(string_obj)
+	$(CC) $(CC_warning_flags)-c -g $(vga_src) -o $(vga_obj)
+	$(CC) $(CC_warning_flags)-c -g $(printk_src) -o $(printk_obj)
+	$(CC) $(CC_warning_flags)-c -g $(libutils_src) -o $(libutils_obj)
+	
 	@ld -n -T $(linker_script) -o $(kernel) $(assembly_object_files) $(kmain_obj) $(string_obj) $(vga_obj) $(libutils_obj) $(printk_obj)
+
 # compile assembly files
 build/arch/$(arch)/%.o: src/arch/$(arch)/%.asm
 	@mkdir -p $(shell dirname $@)

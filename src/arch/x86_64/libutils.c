@@ -2,12 +2,12 @@
 
 #define ASCII_CHARS
 
-char * itoa( int value, char * str, int base)
+void itoa( int value, char * str, int base)
 {
     char * rc;
     char * ptr;
     char * low;
-    rc = ptr = str;
+    ptr = str;
     // Set '-' for negative decimals.
     if ( value < 0 && base == 10 )
     {
@@ -31,7 +31,6 @@ char * itoa( int value, char * str, int base)
         *low++ = *ptr;
         *ptr-- = tmp;
     }
-    return rc;
 }
 
 char * ltoa( long value, char * str, int base)
