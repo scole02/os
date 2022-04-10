@@ -15,7 +15,7 @@ void VGA_clear(void)
     memset(VGA_buf, 0,  VGA_ROWS * VGA_COLS * VGA_CHAR_SIZE); 
 }
 
-void _scroll_text(void)
+static void _scroll_text(void)
 {
     unsigned short * second_row = VGA_buf + VGA_COLS;
     memcpy(VGA_buf, second_row,  VGA_CHAR_SIZE * VGA_COLS * (VGA_ROWS-1) );
