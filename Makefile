@@ -5,6 +5,8 @@ arch ?= x86_64
 kernel := build/kernel-$(arch).bin
 iso := build/os-$(arch).iso
 
+keyboard_src := src/arch/$(arch)/keyboard.c
+keyboard_obj := build/arch/$(arch)/keyboard.o
 ps2_src := src/arch/$(arch)/ps2.c
 ps2_obj := build/arch/$(arch)/ps2.o
 libutils_src := src/arch/$(arch)/libutils.c
@@ -57,9 +59,11 @@ $(kernel): $(assembly_object_files) $(linker_script)
 	$(CC) $(CC_warning_flags) $(CFLAGS) $(printk_src) -o $(printk_obj)
 	$(CC) $(CC_warning_flags) $(CFLAGS) $(libutils_src) -o $(libutils_obj)
 	$(CC) $(CC_warning_flags) $(CFLAGS) $(ps2_src) -o $(ps2_obj)
+	$(CC) $(CC_warning_flags) $(CFLAGS) $(keyboard_src) -o $(keyboard_obj)
+
 
 	
-	@ld -n -T $(linker_script) -o $(kernel) $(assembly_object_files) $(kmain_obj) $(string_obj) $(vga_obj) $(libutils_obj) $(printk_obj) $(ps2_obj)
+	@ld -n -T $(linker_script) -o $(kernel) $(assembly_object_files) $(kmain_obj) $(string_obj) $(vga_obj) $(libutils_obj) $(printk_obj) $(ps2_obj) $(keyboard_obj)
 
 # compile assembly files
 build/arch/$(arch)/%.o: src/arch/$(arch)/%.asm

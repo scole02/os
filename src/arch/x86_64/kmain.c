@@ -1,20 +1,35 @@
 #include "my_string.h"
 #include "vga.h"
 #include "printk.h"
-#include "ps2.h"
+#include "keyboard.h"
 
 void kmain()
 {
-    volatile int text = 0x57695748;
-    const char * str1;
-    const char * str2 = "testing\n";
+    char * key = "\0";
+    int pressed = 0;
+    //const char * str2 = "testing\n";
     
     int i = 0;
     //while(!i);
     VGA_clear();
-    ps2_init();
-    VGA_display_char('\n');
-    keyboard_test();
+    keyboard_init();
+    while(1)
+    {
+        key = poll_keystroke();
+        //printk("\nYou pressed: %hx --> %s\n", scancode, ascii_lookup_tbl[scancode]);
+        if(key[0] == '\0') 
+        {
+            pressed = 1;
+            continue;
+        }
+        else if(pressed)
+        {
+            pressed = 0;
+            continue;
+        }
+        printk("%s", key);
+    }
+
 
 
     // for (i=0;i<20;i++)
@@ -24,7 +39,7 @@ void kmain()
     //     // for(int i=0; i <3000000; i++)
     //     //     asm volatile("");
     // } 
-    
+
     while(1)
     {
         asm volatile(//"mov qword %[0xb8000], $0x2f4b2f4b\n\t"
