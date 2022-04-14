@@ -2,6 +2,9 @@
 #include "vga.h"
 #include "printk.h"
 #include "keyboard.h"
+#include "pic.h"
+extern const uint16_t GDT64_CODE_OFFSET asm("gdt64.code");
+extern const uint64_t GDT64 asm("gdt64.pointer");
 
 void kmain()
 {
@@ -13,6 +16,10 @@ void kmain()
     //while(!i);
     VGA_clear();
     keyboard_init();
+    // printk("gdt: %hd\n", GDT64);
+    // printk("gddt code offset: %ld\n", GDT64_CODE_OFFSET);
+    PIC_remap(PIC1, PIC2);
+    
     while(1)
     {
         key = poll_keystroke();
@@ -42,8 +49,7 @@ void kmain()
 
     while(1)
     {
-        asm volatile(//"mov qword %[0xb8000], $0x2f4b2f4b\n\t"
-                    // "mov %eax, $0xb8000 \n\t"
-                     "hlt\n\t");
-    }    
+        asm volatile("hlt\n\t"); // such is life
+    }   
 }
+

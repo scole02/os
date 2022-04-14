@@ -1,4 +1,5 @@
 // taken from osdev: https://wiki.osdev.org/Printing_To_Screen
+#include <stdint.h>
 
 #define ASCII_CHARS
 
@@ -92,4 +93,24 @@ void ltoa( long value, char * str, int base)
         *low++ = *ptr;
         *ptr-- = tmp;
     }
+}
+
+// for reading/wirting ports
+inline void _outb(uint16_t port, uint8_t val)
+{
+    asm volatile ( "outb %0, %1" : : "a"(val), "Nd"(port) );
+}
+
+inline uint8_t _inb(uint16_t port)
+{
+    uint8_t ret;
+    asm volatile ( "inb %1, %0"
+    : "=a"(ret)
+    : "Nd"(port) );
+    return ret;
+}
+
+inline void iowait()
+{
+    for(int i=0; i<1000000;i++);
 }

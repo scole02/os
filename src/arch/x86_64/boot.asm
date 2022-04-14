@@ -1,4 +1,6 @@
 global start
+global gdt64.code
+global gdt64.pointer
 extern long_mode_start
 
 section .text
