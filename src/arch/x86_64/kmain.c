@@ -3,6 +3,7 @@
 #include "printk.h"
 #include "keyboard.h"
 #include "pic.h"
+#include "interrupts.h"
 extern const uint16_t GDT64_CODE_OFFSET asm("gdt64.code");
 extern const uint64_t GDT64 asm("gdt64.pointer");
 
@@ -18,7 +19,11 @@ void kmain()
     keyboard_init();
     // printk("gdt: %hd\n", GDT64);
     // printk("gddt code offset: %ld\n", GDT64_CODE_OFFSET);
-    PIC_remap(PIC1, PIC2);
+    PIC_init(PIC1, PIC2);
+    idt_init();
+    //asm("sti\n");
+    asm("int $0x30");
+    printk("out\n");
     
     while(1)
     {

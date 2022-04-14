@@ -21,12 +21,13 @@
 #define ICW4_SFNM	0x10		/* Special fully nested (not) */
 
 
-
+void PIC_init(int offset1, int offset2);
 void PIC_remap(int offset1, int offset2);
 void PIC_sendEOI(unsigned char irq);
 void IRQ_set_mask(unsigned char IRQline); 
 void IRQ_clear_mask(unsigned char IRQline); 
 int IRQ_get_mask(unsigned char irqline);
+
 
 
 #endif

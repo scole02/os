@@ -7,6 +7,9 @@ arguments:
 		vectors on the master become offset1..offset1+7
 	offset2 - same for slave PIC: offset2..offset2+7
 */
+
+
+
 void PIC_remap(int offset1, int offset2)
 {
 	unsigned char a1, a2;
@@ -84,4 +87,18 @@ void IRQ_clear_mask(unsigned char irqline)
     }
     value = _inb(port) & ~(1 << irqline);
     _outb(port, value);        
+}
+
+void IRQ_clear_all_masks()
+{
+    // disables all hardware interrupts
+    _outb(PIC1_DATA, 0xFF);
+    _outb(PIC2_DATA, 0xFF);
+}
+
+void PIC_init(int offset1, int offset2)
+{
+    PIC_remap(offset1, offset2);
+    IRQ_clear_all_masks();
+
 }

@@ -1,6 +1,6 @@
 CC = ~/opt/cross/bin/$(arch)-elf-gcc
-CFLAGS = -c -g -ffreestanding -fgnu89-inline
-CC_warning_flags = -Wno-builtin-declaration-mismatch #not used
+CFLAGS = -c -g -ffreestanding -fgnu89-inline -mno-red-zone
+CC_warning_flags = -Wno-builtin-declaration-mismatch 
 arch ?= x86_64
 kernel := build/kernel-$(arch).bin
 iso := build/os-$(arch).iso

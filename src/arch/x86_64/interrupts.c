@@ -1,5 +1,6 @@
 
 #include "interrupts.h"
+#include "printk.h"
 #include <stdint.h>
 
 #define IDT_MAX_DESCRIPTORS 256
@@ -11,8 +12,9 @@ const uint16_t GDT64_CODE_OFFSET = 8;
 extern void* isr_stub_table[];
 
 
-void exception_handler() {
-    __asm__ volatile ("cli; hlt"); // Completely hangs the computer
+void exception_handler(uint8_t isr_num) {
+    printk("in isr %d\n", isr_num);
+    //__asm__ volatile ("cli"); // Completely hangs the computer
 }
 
 void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags) {
@@ -32,11 +34,12 @@ void idt_init() {
     idtr.base = (uintptr_t)&idt[0];
     idtr.limit = (uint16_t)sizeof(idt_entry_t) * IDT_MAX_DESCRIPTORS - 1;
  
-    for (uint8_t vector = 0; vector < 32; vector++) {
-        idt_set_descriptor(vector, isr_stub_table[vector], 0x8E);
+    for (uint8_t vector = 0; vector < 255; vector++) {
+        idt_set_descriptor(vector, isr_stub_table[vector], 0x8F);
         //vectors[vector] = true;
     }
  
     __asm__ volatile ("lidt %0" : : "m"(idtr)); // load the new IDT
     __asm__ volatile ("sti"); // set the interrupt flag
+    printk("done\n");
 }

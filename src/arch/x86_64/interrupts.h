@@ -22,6 +22,6 @@ typedef void (*irq_handler_t)(int, int, void*);
 extern void IRQ_set_handler(int irq, irq_handler_t handler, void *arg);
 void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags);
 
-__attribute__((noreturn))
-void exception_handler(void);
+//__attribute__((noreturn))
+void exception_handler(uint8_t);
 void idt_init(void);
