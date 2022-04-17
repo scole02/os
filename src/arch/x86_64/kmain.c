@@ -15,32 +15,35 @@ void kmain()
     
     int i = 0;
     //while(!i);
+    asm("cli\n");
     VGA_clear();
     keyboard_init();
     // printk("gdt: %hd\n", GDT64);
     // printk("gddt code offset: %ld\n", GDT64_CODE_OFFSET);
+    
     PIC_init(PIC1, PIC2);
     idt_init();
-    //asm("sti\n");
-    asm("int $0x30");
+    keybrd_int_init();
+    //asm("int $33");
     printk("out\n");
-    
-    while(1)
-    {
-        key = poll_keystroke();
-        //printk("\nYou pressed: %hx --> %s\n", scancode, ascii_lookup_tbl[scancode]);
-        if(key[0] == '\0') 
-        {
-            pressed = 1;
-            continue;
-        }
-        else if(pressed)
-        {
-            pressed = 0;
-            continue;
-        }
-        printk("%s", key);
-    }
+    //asm("int $33");
+
+    // while(1)
+    // {
+    //     key = poll_keystroke();
+    //     //printk("\nYou pressed: %hx --> %s\n", scancode, ascii_lookup_tbl[scancode]);
+    //     if(key[0] == '\0') 
+    //     {
+    //         pressed = 1;
+    //         continue;
+    //     }
+    //     else if(pressed)
+    //     {
+    //         pressed = 0;
+    //         continue;
+    //     }
+    //     printk("%s", key);
+    // }
 
 
 

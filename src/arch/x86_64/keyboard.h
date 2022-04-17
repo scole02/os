@@ -4,6 +4,7 @@
 
 void keyboard_init();
 char * poll_keystroke();
+char * get_key();
 
 char ascii_lookup_tbl[128][5]; // scancode --> chararray, 0x16 --> "1" 
 

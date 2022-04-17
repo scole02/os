@@ -1,6 +1,8 @@
 
 #include "interrupts.h"
+#include "keyboard.h"
 #include "printk.h"
+#include "pic.h"
 #include <stdint.h>
 
 #define IDT_MAX_DESCRIPTORS 256
@@ -8,13 +10,26 @@
 static idtr_t idtr;
 
 //extern const uint16_t GDT64_CODE_OFFSET asm("gdt64.code");
-const uint16_t GDT64_CODE_OFFSET = 8;
+const uint16_t GDT64_CODE_OFFSET = 0x08;
 extern void* isr_stub_table[];
 
 
-void exception_handler(uint8_t isr_num) {
-    printk("in isr %d\n", isr_num);
+void kb_exception_handler(uint8_t isr_num) 
+{
+    char* key = "\0";
+    key = get_key();
+    if(key[0] != '\0') // valid keypress
+        printk("%s", key);
+    
+    PIC_sendEOI(isr_num - PIC1); // a lil jank, its just 1 for kb
     //__asm__ volatile ("cli"); // Completely hangs the computer
+}
+
+void exception_handler(uint8_t isr_num)
+{
+    if (isr_num == PIC1 + 1) // keyboard interrupt number
+        kb_exception_handler(isr_num);
+    else printk("In ISR: %hx", isr_num);
 }
 
 void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags) {
@@ -35,11 +50,31 @@ void idt_init() {
     idtr.limit = (uint16_t)sizeof(idt_entry_t) * IDT_MAX_DESCRIPTORS - 1;
  
     for (uint8_t vector = 0; vector < 255; vector++) {
-        idt_set_descriptor(vector, isr_stub_table[vector], 0x8F);
+        if(vector == 33)
+        {
+        idt_set_descriptor(vector, isr_stub_table[vector], 0x8E);
+        }
+        idt_set_descriptor(vector, isr_stub_table[vector], 0x8E);
         //vectors[vector] = true;
     }
  
     __asm__ volatile ("lidt %0" : : "m"(idtr)); // load the new IDT
     __asm__ volatile ("sti"); // set the interrupt flag
     printk("done\n");
+}
+
+void keybrd_int_init()
+{
+    IRQ_clear_mask(KEYBOARD_INT_LINE);
+
+}
+
+uint8_t are_interrupts_enabled()
+{
+    unsigned long flags;
+    asm volatile("pushf; pop %0"
+                : "=rm" (flags)
+                : /* no input */
+                : "memory");
+    return (flags & 0x200 ) == 0;
 }

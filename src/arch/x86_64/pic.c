@@ -47,7 +47,11 @@ void PIC_sendEOI(unsigned char irq)
 	_outb(PIC1_COMMAND,PIC_EOI);
 }
 
+//each pic has a bitmap (1byte) for 8 irqlines.
+//When a bit is set, the PIC ignores the request 
+
 void IRQ_set_mask(unsigned char irqline) {
+    // ignore irqline
     uint16_t port;
     uint8_t value;
  
@@ -76,6 +80,7 @@ int IRQ_get_mask(unsigned char irqline)
 
 void IRQ_clear_mask(unsigned char irqline) 
 {
+    // enable irqline
     uint16_t port;
     uint8_t value;
  
@@ -89,7 +94,7 @@ void IRQ_clear_mask(unsigned char irqline)
     _outb(port, value);        
 }
 
-void IRQ_clear_all_masks()
+void IRQ_set_all_masks()
 {
     // disables all hardware interrupts
     _outb(PIC1_DATA, 0xFF);
@@ -99,6 +104,5 @@ void IRQ_clear_all_masks()
 void PIC_init(int offset1, int offset2)
 {
     PIC_remap(offset1, offset2);
-    IRQ_clear_all_masks();
-
+    IRQ_set_all_masks();
 }

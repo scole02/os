@@ -11,7 +11,7 @@ char ascii_lookup_tbl[128][5] = {
     "f", "t", "r", "5", "\0", "\0", "n", "b", "h", "g", "y", "6", "\0", //0x37
     "\0", "\0", "m", "j", "u", "7", "8", "\0", "\0", ",", "k", "i", //0x43
     "o", "0", "9", "\0", "\0", ".", "/", "l", ";", "p", "-", "\0", //0x4F
-    "\0", "\0", "'", "\0", "[", "=", "\0", "\0", "CAPS", "RSHFT", "ENTER", //0x5A
+    "\0", "\0", "'", "\0", "[", "=", "\0", "\0", "CAPS", "RSHFT", "\n", //0x5A
     "]", "\0", "\\", "\0", "\0", "\0", "\0", "\0","\0", "\0","\0", "BKSPC", //0x66
     "\0", "\0" };
 
@@ -22,6 +22,19 @@ char * poll_keystroke()
     {
         get_ps2_response(&scancode);
     }
+    return ascii_lookup_tbl[scancode];
+}
+
+char * get_key()
+{
+    uint8_t scancode = 0;
+    get_ps2_response(&scancode);
+    if(scancode == 0xF0) // will be used for detecting key release
+    {
+        get_ps2_response(&scancode);
+        return "\0";
+        //printk("got 0xF0\n");
+    }    
     return ascii_lookup_tbl[scancode];
 }
 void keyboard_init()

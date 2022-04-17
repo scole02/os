@@ -1,4 +1,5 @@
 #include "my_string.h"
+#include "interrupts.h"
 
 #define VGA_BASE_ADDR 0xb8000
 #define VGA_COLS 80
@@ -28,6 +29,13 @@ static void _scroll_text(void)
 void VGA_display_char(char c)
 {
     short int vga_char = COLOR | c;
+    uint8_t enable_ints = 0;
+    if(are_interrupts_enabled())
+    {
+        enable_ints = 1;
+        CLI;
+    }
+
     if (c == '\n') // newline
     {
         // set offset to beginning of next row
@@ -48,6 +56,8 @@ void VGA_display_char(char c)
     //memcpy((char*)VGA_BASE_ADDR + cur_byte_offset, &vga_char, sizeof(vga_char)); 
     VGA_buf[cur_byte_offset] = vga_char;
     cur_byte_offset++;
+
+    //if (enable_ints) STI;
 }
 
 void VGA_display_str(const char *str)
