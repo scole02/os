@@ -47,7 +47,7 @@ void send_ps2_dev_cmd(uint8_t cmd, uint8_t data, uint8_t send_data) // if !send_
 
     // check response here
     get_ps2_response(&response);
-    printk("dev_cmd %hx, response: %hx\n", (short)cmd, (short)response);
+    //printk("dev_cmd %hx, response: %hx\n", (short)cmd, (short)response);
 
     if(send_data == NO_DATA) return;
     

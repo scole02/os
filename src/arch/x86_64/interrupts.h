@@ -35,9 +35,9 @@ typedef struct {
 	uint8_t     addr_mid3;
 	uint32_t    addr_high4;      
 	uint32_t    reserved;    
-}; __attribute__((packed)) tss_desc; // gets loaded into GDT
+} __attribute__((packed)) tss_desc; // gets loaded into GDT
 
-uint32_t tss[26];
+//uint32_t tss[26];
 
 typedef void (*irq_handler_t)(int, int, void*);
 extern void IRQ_set_handler(int irq, irq_handler_t handler, void *arg);

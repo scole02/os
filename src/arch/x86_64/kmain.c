@@ -4,9 +4,12 @@
 #include "keyboard.h"
 #include "pic.h"
 #include "interrupts.h"
+#include "serial.h"
+
 extern const uint16_t GDT64_CODE_OFFSET asm("gdt64.code");
 extern const uint64_t GDT64 asm("gdt64.pointer");
-
+    // printk("gdt: %hd\n", GDT64);
+    // printk("gddt code offset: %ld\n", GDT64_CODE_OFFSET);
 void kmain()
 {
     char * key = "\0";
@@ -18,15 +21,19 @@ void kmain()
     asm("cli\n");
     VGA_clear();
     keyboard_init();
-    // printk("gdt: %hd\n", GDT64);
-    // printk("gddt code offset: %ld\n", GDT64_CODE_OFFSET);
-    
     PIC_init(PIC1, PIC2);
     idt_init();
     keybrd_int_init();
-    //asm("int $33");
-    printk("out\n");
-    //asm("int $33");
+    serial_init();
+    init_state(&serial_state);
+    producer_add_char('f', &serial_state);
+    producer_add_char('g', &serial_state);
+    producer_add_char('h', &serial_state);
+    printk("%c\n", consumer_next(&serial_state));
+    printk("%c\n", consumer_next(&serial_state));
+    printk("%c\n", consumer_next(&serial_state));
+
+
 
     // while(1)
     // {
