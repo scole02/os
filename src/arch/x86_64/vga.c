@@ -50,14 +50,16 @@ void VGA_display_char(char c)
        _scroll_text();
         //memcpy(VGA_buf, VGA_buf + VGA_COLS*sizeof(vga_char), sizeof(vga_char) * (VGA_COLS-1) * (VGA_ROWS -1));
     }
-    if (c == '\n')
-        return;
-  
-    //memcpy((char*)VGA_BASE_ADDR + cur_byte_offset, &vga_char, sizeof(vga_char)); 
-    VGA_buf[cur_byte_offset] = vga_char;
-    cur_byte_offset++;
-
-    //if (enable_ints) STI;
+    if (c != '\n')
+    {
+        VGA_buf[cur_byte_offset] = vga_char;
+        //if (enable_ints) VGA_buf[cur_byte_offset+1] = '1';
+        cur_byte_offset++;
+    }
+    if (enable_ints == 1)
+    {
+        STI;
+    }
 }
 
 void VGA_display_str(const char *str)

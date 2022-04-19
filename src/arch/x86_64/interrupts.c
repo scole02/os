@@ -60,13 +60,13 @@ void idt_init() {
  
     __asm__ volatile ("lidt %0" : : "m"(idtr)); // load the new IDT
     __asm__ volatile ("sti"); // set the interrupt flag
-    printk("done\n");
+    //int l = are_interrupts_enabled();
+    //printk("done\n");
 }
 
 void keybrd_int_init()
 {
     IRQ_clear_mask(KEYBOARD_INT_LINE);
-
 }
 
 uint8_t are_interrupts_enabled()
@@ -76,5 +76,5 @@ uint8_t are_interrupts_enabled()
                 : "=rm" (flags)
                 : /* no input */
                 : "memory");
-    return (flags & 0x200 ) == 0;
+    return (flags & 0x200 ) != 0;
 }

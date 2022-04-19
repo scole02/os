@@ -2,8 +2,8 @@
 #define INTERRUPTS_H
 #include <stdint.h>
 
-#define CLI {__asm__("cli\n");}
-#define STI {__asm__("sti\n");}
+#define CLI {asm volatile ("cli\n");}
+#define STI {asm volatile ("sti\n");}
 
 typedef struct {
 	uint16_t    isr_low;      // The lower 16 bits of the ISR's address
@@ -22,6 +22,22 @@ typedef struct {
 	uint16_t	limit;
 	uint64_t	base;
 } __attribute__((packed)) idtr_t;
+
+typedef struct {
+	uint16_t    seg_limit_low;   
+	uint16_t    addr_low1;    
+	uint8_t	    addr_mid2;          
+	uint8_t     attributes;  
+	uint8_t     seg_limit_high: 4;
+	uint8_t     AVL: 1;
+	uint8_t     : 2;
+	uint8_t     G: 1;
+	uint8_t     addr_mid3;
+	uint32_t    addr_high4;      
+	uint32_t    reserved;    
+}; __attribute__((packed)) tss_desc; // gets loaded into GDT
+
+uint32_t tss[26];
 
 typedef void (*irq_handler_t)(int, int, void*);
 extern void IRQ_set_handler(int irq, irq_handler_t handler, void *arg);
