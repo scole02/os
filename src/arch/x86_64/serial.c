@@ -8,7 +8,7 @@
 //#define SER_STATE_BUF_EMPTY(state) {state->consumer == state->producer}
 
 void serial_init() {
-    _outb(COM1_PORT + 1, 0x01);    // set transmitter empty interrupt
+    _outb(COM1_PORT + 1, 0x02);    // set transmitter empty interrupt
     _outb(COM1_PORT + 3, 0x80);    // Enable DLAB (set baud rate divisor)
     _outb(COM1_PORT + 0, 0x03);    // Set divisor to 3 (lo byte) 38400 baud
     _outb(COM1_PORT + 1, 0x00);    //                  (hi byte)
@@ -26,7 +26,7 @@ void serial_init() {
     {
     // (not-loopback with IRQs enabled and OUT#1 and OUT#2 bits enabled)
         printk("SERIAL TEST: PASSED\n");
-        _outb(COM1_PORT + 4, 0x0F);  
+        _outb(COM1_PORT + 4, 0x0F); // 4 is magic num, also used in interrupt handler to detect serial int
     }
 
     IRQ_clear_mask(COM1_IRQ_LINE);
@@ -41,13 +41,17 @@ int start_tx(SerialState *state)
         return 2;
 
     _outb(COM1_PORT, (uint8_t)c);
-    
+    return 0;
 }
-void SERIAL_write(SerialState *state, uint8_t c)
+void SERIAL_write(SerialState *state, int len, char* buf)
 {
     uint8_t line_status = 0;
-    if(producer_add_char(c, state))
-        printk("failed to add char to buf\n");
+    for (int i=0; i<len; i++)
+    {
+        if(producer_add_char(buf[i], state))
+            printk("failed to add char to buf\n");
+    }
+
     line_status = _inb(COM1_PORT+5);
     if ((state->consumer != state->producer) && (line_status & TRANS_EMPTY_MASK)) // buffer is not empty and hw is idle
         start_tx(state);
@@ -94,3 +98,4 @@ int producer_add_char(char toAdd, struct SerialState *state)
         state->producer = &state->buff[0];
     return 0;
 }
+

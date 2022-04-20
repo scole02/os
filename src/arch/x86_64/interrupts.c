@@ -3,7 +3,10 @@
 #include "keyboard.h"
 #include "printk.h"
 #include "pic.h"
+#include "libutils.h"
+#include "serial.h"
 #include <stdint.h>
+
 
 #define IDT_MAX_DESCRIPTORS 256
 
@@ -25,10 +28,31 @@ void kb_exception_handler(uint8_t isr_num)
     //__asm__ volatile ("cli"); // Completely hangs the computer
 }
 
+void serial_exception_handler(uint8_t isr_num)
+{
+    uint8_t iir_status = _inb(COM1_PORT + 2);
+    printk("iir: %hx\n", iir_status);
+
+    // determine what kind of interrupt we got
+    if ((iir_status & IIR_TRANS_MASK) == IIR_TRANS_MASK) 
+    {
+        printk("got trans int\n");
+        start_tx(&serial_state);
+    }
+    else if((iir_status & IIR_LINE_MASK) == IIR_LINE_MASK)// kind of gross but line mask is b0110
+        printk("got line int \n");
+    else printk("ERROR with Serial Interrupt\n");
+    
+    PIC_sendEOI(isr_num - PIC1);
+}
+
 void exception_handler(uint8_t isr_num)
 {
     if (isr_num == PIC1 + 1) // keyboard interrupt number
         kb_exception_handler(isr_num);
+
+    else if(isr_num == PIC1 + 4) // COM1 uart line
+        serial_exception_handler(isr_num);
     else printk("In ISR: %hx", isr_num);
 }
 

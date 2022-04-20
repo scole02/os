@@ -26,12 +26,16 @@ void kmain()
     keybrd_int_init();
     serial_init();
     init_state(&serial_state);
-    producer_add_char('f', &serial_state);
-    producer_add_char('g', &serial_state);
-    producer_add_char('h', &serial_state);
-    printk("%c\n", consumer_next(&serial_state));
-    printk("%c\n", consumer_next(&serial_state));
-    printk("%c\n", consumer_next(&serial_state));
+
+    SERIAL_write(&serial_state, 11, "lol lol !");
+    // producer_add_char('f', &serial_state);
+    // producer_add_char('g', &serial_state);
+    // producer_add_char('h', &serial_state);
+    // printk("%c\n", consumer_next(&serial_state));
+    // printk("%c\n", consumer_next(&serial_state));
+    // printk("%c\n", consumer_next(&serial_state));
+    //start_tx(&serial_state);
+
 
 
 
