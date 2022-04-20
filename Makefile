@@ -6,6 +6,8 @@ kernel := build/kernel-$(arch).bin
 iso := build/os-$(arch).iso
 
 #hardware
+serial_src := src/arch/$(arch)/serial.c
+serial_obj := build/arch/$(arch)/serial.o
 interrupts_src := src/arch/$(arch)/interrupts.c
 interrupts_obj := build/arch/$(arch)/interrupts.o
 pic_src := src/arch/$(arch)/pic.c
@@ -16,14 +18,15 @@ ps2_src := src/arch/$(arch)/ps2.c
 ps2_obj := build/arch/$(arch)/ps2.o
 vga_src := src/arch/$(arch)/vga.c
 vga_obj := build/arch/$(arch)/vga.o
-printk_src := src/arch/$(arch)/printk.c
-printk_obj := build/arch/$(arch)/printk.o
+
 
 # utils
 libutils_src := src/arch/$(arch)/libutils.c
 libutils_obj := build/arch/$(arch)/libutils.o
 my_string_src := src/arch/$(arch)/my_string.c
 my_string_obj := build/arch/$(arch)/my_string.o
+printk_src := src/arch/$(arch)/printk.c
+printk_obj := build/arch/$(arch)/printk.o
 
 kmain_src := src/arch/$(arch)/kmain.c
 kmain_obj := build/arch/$(arch)/kmain.o
@@ -70,13 +73,12 @@ $(kernel): $(assembly_object_files) $(linker_script)
 	$(CC) $(CC_warning_flags) $(CFLAGS) $(keyboard_src) -o $(keyboard_obj)
 	$(CC) $(CC_warning_flags) $(CFLAGS) $(pic_src) -o $(pic_obj)
 	$(CC) $(CC_warning_flags) $(CFLAGS) $(interrupts_src) -o $(interrupts_obj)
+	$(CC) $(CC_warning_flags) $(CFLAGS) $(serial_src) -o $(serial_obj)
 
 
-
-	
 	@ld -n -T $(linker_script) -o $(kernel) $(assembly_object_files) \
 	$(kmain_obj) $(my_string_obj) $(vga_obj) $(libutils_obj) $(printk_obj) \
-	$(ps2_obj) $(keyboard_obj) $(pic_obj) $(interrupts_obj)
+	$(ps2_obj) $(keyboard_obj) $(pic_obj) $(interrupts_obj) $(serial_obj)
 
 # compile assembly files
 build/arch/$(arch)/%.o: src/arch/$(arch)/%.asm
