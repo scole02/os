@@ -20,7 +20,7 @@ int strlen(const char *s)
     const char *str;
     
     for(str = s; *str; str++);
-    return(s - str);
+    return(str - s);
 }
 
 char *strcpy(char *dst, const char *src)

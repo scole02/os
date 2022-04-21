@@ -12,7 +12,7 @@ extern const uint64_t GDT64 asm("gdt64.pointer");
     // printk("gddt code offset: %ld\n", GDT64_CODE_OFFSET);
 void kmain()
 {
-    char * key = "\0";
+    char * key = "this is a test\n";
     int pressed = 0;
     //const char * str2 = "testing\n";
     
@@ -27,7 +27,6 @@ void kmain()
     serial_init();
     init_state(&serial_state);
 
-    SERIAL_write(&serial_state, 11, "lol lol !");
     // producer_add_char('f', &serial_state);
     // producer_add_char('g', &serial_state);
     // producer_add_char('h', &serial_state);
@@ -53,6 +52,8 @@ void kmain()
     //         pressed = 0;
     //         continue;
     //     }
+    //     //printk("%d", strlen(key));s
+    //     //SERIAL_write(&serial_state, strlen(key), key);
     //     printk("%s", key);
     // }
 
@@ -71,4 +72,10 @@ void kmain()
         asm volatile("hlt\n\t"); // such is life
     }   
 }
+
+// TODO from "Handle Interrupts" Milestone
+
+// add assembly code for special error ints
+// print error mesage for unhandled errors
+// setup and configure tss
 

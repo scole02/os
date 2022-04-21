@@ -5,6 +5,8 @@
 #include "printk.h"
 #include <stdint.h>
 
+volatile uint8_t SERIAL_buf_busy = 0; // serial is busy when set
+
 //#define SER_STATE_BUF_EMPTY(state) {state->consumer == state->producer}
 
 void serial_init() {
@@ -32,29 +34,60 @@ void serial_init() {
     IRQ_clear_mask(COM1_IRQ_LINE);
 }
 
-int start_tx(SerialState *state)
+int start_tx()
 {
+    SerialState *state = &serial_state;
+    uint8_t enable_ints = 0;
     short c = 0;
-    if((state->consumer == state->producer)) // check if buffer is empty, kind of redundant
-        return 1;
+    if(are_interrupts_enabled())
+    {
+        enable_ints = 1;
+        CLI;
+    }
+    if((state->consumer == state->producer)) // check if buffer is empty
+    {
+        if(enable_ints) STI;  
+        return 0; // should probably be different from the default return val
+    }
     if((c = consumer_next(state)) < 0) // consumer fails to return value
-        return 2;
-
+    {
+        if(enable_ints) STI;
+        return 1;
+    }
+    SERIAL_buf_busy = 1; // HW buffer is abour to be busy
     _outb(COM1_PORT, (uint8_t)c);
+    if(enable_ints) STI;  
     return 0;
 }
-void SERIAL_write(SerialState *state, int len, char* buf)
+
+void SERIAL_write(SerialState *state, int len, const char* buf)
 {
+    
     uint8_t line_status = 0;
+    uint8_t enable_ints = 0;
+    if(are_interrupts_enabled())
+    {
+        enable_ints = 1;
+        CLI;
+    }
+    // add characaters to driver bounded buffer
     for (int i=0; i<len; i++)
     {
         if(producer_add_char(buf[i], state))
             printk("failed to add char to buf\n");
     }
 
-    line_status = _inb(COM1_PORT+5);
-    if ((state->consumer != state->producer) && (line_status & TRANS_EMPTY_MASK)) // buffer is not empty and hw is idle
-        start_tx(state);
+    // check if HW buffer is empty/idle
+    if(SERIAL_buf_busy)
+    {    
+        line_status = _inb(COM1_PORT+5); // poll HW
+        SERIAL_buf_busy = (line_status & TRANS_EMPTY_MASK) != TRANS_EMPTY_MASK; // check if trans buffer empty
+    }
+    if (!SERIAL_buf_busy & (state->consumer != state->producer)) // buffer is not empty and hw is idle
+        start_tx(); // write to empty buffer
+    else printk("not writing, buf_busy:%d buf_empty:%d", SERIAL_buf_busy, (state->consumer != state->producer));
+    if(enable_ints) STI;  
+
 }       
 
 void init_state(struct SerialState *state)
@@ -88,14 +121,24 @@ short consumer_next(struct SerialState *state)
 }
 int producer_add_char(char toAdd, struct SerialState *state)
 {
+    uint8_t enable_ints = 0;
+    if(are_interrupts_enabled())
+    {
+        enable_ints = 1;
+        CLI;
+    }
     // buffer is full
     if (state->producer == state->consumer - 1 ||
         (state->consumer == &(state->buff[0]) && state->producer == &(state->buff[BUFF_SIZE-1])))
+    {
+        if(enable_ints) STI;
         return 1; // not added
-    
+    }
     *state->producer++ = toAdd;
     if (state->producer >= &state->buff[BUFF_SIZE])
         state->producer = &state->buff[0];
+    if(enable_ints) STI;  
+
     return 0;
 }
 

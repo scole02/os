@@ -5,6 +5,7 @@
 #include "pic.h"
 #include "libutils.h"
 #include "serial.h"
+#include "my_string.h"
 #include <stdint.h>
 
 
@@ -23,24 +24,33 @@ void kb_exception_handler(uint8_t isr_num)
     key = get_key();
     if(key[0] != '\0') // valid keypress
         printk("%s", key);
-    
+        
     PIC_sendEOI(isr_num - PIC1); // a lil jank, its just 1 for kb
     //__asm__ volatile ("cli"); // Completely hangs the computer
 }
 
 void serial_exception_handler(uint8_t isr_num)
 {
-    uint8_t iir_status = _inb(COM1_PORT + 2);
-    printk("iir: %hx\n", iir_status);
 
+    uint8_t err = 0, line_status = 0;
+    uint8_t iir_status = _inb(COM1_PORT + 2);
     // determine what kind of interrupt we got
+
+    // TRANSMIT BUFFER EMPTY INTERRUPT
     if ((iir_status & IIR_TRANS_MASK) == IIR_TRANS_MASK) 
     {
-        printk("got trans int\n");
-        start_tx(&serial_state);
+        //printk("In Trasnmit buf\n");
+        SERIAL_buf_busy = 0; // clear busy flag
+        if((err = start_tx(&serial_state))) printk("ERROR %d\n", err);
     }
+    // LINE INTERRUPT, shouldnt happen
     else if((iir_status & IIR_LINE_MASK) == IIR_LINE_MASK)// kind of gross but line mask is b0110
-        printk("got line int \n");
+    {
+        printk("ERROR: SERIAL LINE INTERRUPT \n"); 
+        line_status = _inb(COM1_PORT+5); // clear line int by reading LSR
+
+    }
+    // Shouldnt get anything else unless interrupts not enabled correctly   
     else printk("ERROR with Serial Interrupt\n");
     
     PIC_sendEOI(isr_num - PIC1);

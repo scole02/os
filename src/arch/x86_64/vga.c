@@ -1,5 +1,6 @@
 #include "my_string.h"
 #include "interrupts.h"
+#include "serial.h"
 
 #define VGA_BASE_ADDR 0xb8000
 #define VGA_COLS 80
@@ -30,6 +31,7 @@ void VGA_display_char(char c)
 {
     short int vga_char = COLOR | c;
     uint8_t enable_ints = 0;
+    SERIAL_write(&serial_state, 1, &c); // sneaky and gross
     if(are_interrupts_enabled())
     {
         enable_ints = 1;
@@ -64,10 +66,11 @@ void VGA_display_char(char c)
 
 void VGA_display_str(const char *str)
 {
-  while(*str)
-  {
-    VGA_display_char(*str);
-    str++;
-  }
+    //SERIAL_write(&serial_state, strlen(str), str);// sneaky and gross
+    while(*str)
+    {
+        VGA_display_char(*str);
+        str++;
+    }
 }
 
