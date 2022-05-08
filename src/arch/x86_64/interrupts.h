@@ -35,17 +35,30 @@ typedef struct {
 	uint8_t     addr_mid3;
 	uint32_t    addr_high4;      
 	uint32_t    reserved;    
-} __attribute__((packed)) tss_desc; // gets loaded into GDT
+} __attribute__((packed)) tss_desc_t; // gets loaded into GDT
+
+typedef struct {
+	uint16_t limit_low;
+	uint16_t base_low;
+	uint8_t base_middle;
+	uint8_t access;
+	uint8_t limit_and_flags;
+	uint8_t base_high;
+} __attribute__ ((packed)) gdt_entry_t;
+
 
 //uint32_t tss[26];
 
 typedef void (*irq_handler_t)(int, int, void*);
 extern void IRQ_set_handler(int irq, irq_handler_t handler, void *arg);
-void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags);
+void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags, uint8_t ist);
 void exception_handler(uint8_t);
 void keybrd_int_init();
 void idt_init(void);
 uint8_t are_interrupts_enabled();
+//void init_tss(void * gdt_addr);
+
+
 
 #endif
 

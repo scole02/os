@@ -5,7 +5,7 @@
 #define VGA_BASE_ADDR 0xb8000
 #define VGA_COLS 80
 #define VGA_ROWS 25
-#define COLOR 0x5700 // OR'ed with char
+#define COLOR 0x0F00 // OR'ed with char
 #define VGA_CHAR_SIZE 2
 
 int cur_byte_offset = 0; // location in bytes of next char to be written

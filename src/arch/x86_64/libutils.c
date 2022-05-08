@@ -110,7 +110,12 @@ inline uint8_t _inb(uint16_t port)
     return ret;
 }
 
+// inline void iowait()
+// {
+//     for(int i=0; i<1000000;i++);
+// }
+
 inline void iowait()
 {
-    for(int i=0; i<1000000;i++);
+    _outb(0x80, 0);
 }
