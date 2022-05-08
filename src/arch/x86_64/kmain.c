@@ -5,35 +5,60 @@
 #include "pic.h"
 #include "interrupts.h"
 #include "serial.h"
+#include "multiboot.h"
+#include "gdt.h"
+#include "memory.h"
 
-extern const uint16_t GDT64_CODE_OFFSET asm("gdt64.code");
-extern const uint64_t GDT64 asm("gdt64.pointer");
+//extern const uint16_t GDT64_CODE_OFFSET asm("gdt64.code");
+extern const uint64_t GDT64 asm("gdt64");
     // printk("gdt: %hd\n", GDT64);
     // printk("gddt code offset: %ld\n", GDT64_CODE_OFFSET);
-void kmain()
+void kmain (void * multiboot_addr)
 {
     char * key = "this is a test\n";
-    int pressed = 0;
-    //const char * str2 = "testing\n";
-    
+    int pressed = 0;    
     int i = 0;
-    //while(!i);
+    
+    // //while(!i);
+    // typedef struct {
+    //     uint16_t length;
+    //     void* base;
+    // } __attribute__((packed)) GDTR;
+    // GDTR *gdt; 
+    // //struct GDTR * gdt;
+    // //uint64_t * gdt_ptr;
+    // asm("mov %0, gdtr"
+    //     :
+    //     :"r"(gdt));
+
     asm("cli\n");
+    init_gdt();
     VGA_clear();
     keyboard_init();
+    
     PIC_init(PIC1, PIC2);
     idt_init();
     keybrd_int_init();
     serial_init();
     init_state(&serial_state);
+    
+    //asm("int $0x0");
+    //init_tss((void*)GDT64);
+    //printk("break %d\n", 1/0);
+    // printk("gdt_ptr: %x", GDT64);
+    // printk("gdt_ptr + 1: %x\n", *(&GDT64 +1));
 
-    // producer_add_char('f', &serial_state);
-    // producer_add_char('g', &serial_state);
-    // producer_add_char('h', &serial_state);
-    // printk("%c\n", consumer_next(&serial_state));
-    // printk("%c\n", consumer_next(&serial_state));
-    // printk("%c\n", consumer_next(&serial_state));
-    //start_tx(&serial_state);
+    parse_multiboot_tags(multiboot_addr);
+
+    init_pf_allocater();
+    printk("Gimme some pages!\n");
+    void * pf;
+    for(i = 0; i<10; i++)
+    {
+        printk("%x\n", pf=MMU_pf_alloc());
+        MMU_pf_free(pf);
+        printk("freed %x\n", pf);
+    }
 
 
 
@@ -57,15 +82,6 @@ void kmain()
     //     printk("%s", key);
     // }
 
-
-
-    // for (i=0;i<20;i++)
-    // {
-    //     if(i%2) printk(" %hx %d %p %%\n", 0x57f4, 100, &text); 
-    //     else VGA_display_str(str2);
-    //     // for(int i=0; i <3000000; i++)
-    //     //     asm volatile("");
-    // } 
 
     while(1)
     {
