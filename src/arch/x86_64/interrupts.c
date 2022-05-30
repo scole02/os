@@ -65,7 +65,7 @@ void serial_exception_handler(uint8_t isr_num)
 
 void exception_handler(uint8_t isr_num)
 {
-    register int *sp asm("rsp");
+    register int *sp asm("rsp"); // for checking stack address
     if (isr_num == PIC1 + 1) // keyboard interrupt number
     {
         //printk("%x\n", sp);   
@@ -73,7 +73,12 @@ void exception_handler(uint8_t isr_num)
     }
     else if(isr_num == PIC1 + 4) // COM1 uart line
         serial_exception_handler(isr_num);
-    else printk("Interrupt: %d %x not handled\n", isr_num);
+    else printk("Interrupt: %d not handled\n", isr_num);
+}
+
+void err_exception_handler(uint8_t isr_num, uint64_t error_code)
+{
+    printk("ERROR: %lx\nInterrupt: %d\n", isr_num, isr_num);
 }
 
 void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags, uint8_t ist) {
@@ -96,8 +101,8 @@ void idt_init()
  
     for (uint8_t vector = 0; vector < 255; vector++) 
     {
-        if(vector == 0x00) idt_set_descriptor(vector, isr_stub_table[vector], 0x8E, 1);
-        else idt_set_descriptor(vector, isr_stub_table[vector], 0x8E, 1);
+        if(vector == 0x00) idt_set_descriptor(vector, isr_stub_table[vector], 0x8E, 0);
+        else idt_set_descriptor(vector, isr_stub_table[vector], 0x8E, 0);
     }
  
     __asm__ volatile ("lidt %0" : : "m"(idtr)); // load the new IDT

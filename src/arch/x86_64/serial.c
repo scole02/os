@@ -90,7 +90,7 @@ void SERIAL_write(SerialState *state, int len, const char* buf)
 
 }       
 
-void init_state(struct SerialState *state)
+void init_serial_state(struct SerialState *state)
 {
     state->consumer = &state->buff[0];
     state->producer = &state->buff[0];

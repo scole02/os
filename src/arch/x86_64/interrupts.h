@@ -52,7 +52,8 @@ typedef struct {
 typedef void (*irq_handler_t)(int, int, void*);
 extern void IRQ_set_handler(int irq, irq_handler_t handler, void *arg);
 void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags, uint8_t ist);
-void exception_handler(uint8_t);
+void exception_handler(uint8_t isr_num);
+void err_exception_handler(uint8_t isr_num, uint64_t error_code);
 void keybrd_int_init();
 void idt_init(void);
 uint8_t are_interrupts_enabled();

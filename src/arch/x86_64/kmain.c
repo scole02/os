@@ -1,4 +1,5 @@
 #include "my_string.h"
+#include "libutils.h"
 #include "vga.h"
 #include "printk.h"
 #include "keyboard.h"
@@ -15,21 +16,8 @@ extern const uint64_t GDT64 asm("gdt64");
     // printk("gddt code offset: %ld\n", GDT64_CODE_OFFSET);
 void kmain (void * multiboot_addr)
 {
-    char * key = "this is a test\n";
     int pressed = 0;    
     int i = 0;
-    
-    // //while(!i);
-    // typedef struct {
-    //     uint16_t length;
-    //     void* base;
-    // } __attribute__((packed)) GDTR;
-    // GDTR *gdt; 
-    // //struct GDTR * gdt;
-    // //uint64_t * gdt_ptr;
-    // asm("mov %0, gdtr"
-    //     :
-    //     :"r"(gdt));
 
     asm("cli\n");
     init_gdt();
@@ -40,26 +28,47 @@ void kmain (void * multiboot_addr)
     idt_init();
     keybrd_int_init();
     serial_init();
-    init_state(&serial_state);
+    init_serial_state(&serial_state);
+
+    printk("printk test cases:\n"); 
+    printk("int: %d\n", 100);
+    printk("unisigned: %x\n", &i);
+    printk("char: %c\n", 'c');
+    printk("ulong: %qd %qu\n", 0xffffffffffffffff, 0xffffffffffffffff);
+    printk("long: %qd %qx\n", 0xfffffffffffffff,  0xfffffffffffffff);    
+    printk("ushort: %hd %hu\n", 0xffff,  0xffff); 
+    printk("short: %hd %hx\n", 0x7fff, 0x7fff);
+    printk("uquad: %qd %qu\n", 0xffffffffffffffff, 0xffffffffffffffff);
+    printk("quad: %qd %qx\n", 0xfffffffffffffff,  0xfffffffffffffff);
+
+    //asm("int $10\n"); // bad way of testing, should trigger a page fault and step through with gdb to check stack
+
+    // parse_multiboot_tags(multiboot_addr);
+    // init_pf_allocater();
+    //printk("Gimme some pages!\n");
     
-    //asm("int $0x0");
-    //init_tss((void*)GDT64);
-    //printk("break %d\n", 1/0);
-    // printk("gdt_ptr: %x", GDT64);
-    // printk("gdt_ptr + 1: %x\n", *(&GDT64 +1));
+    // void * first_pf, * pf;
+    // first_pf= MMU_pf_alloc();
+    // for(int j=0; j<512; j++) 
+    //     ((uint64_t*)first_pf)[j] = (uint64_t)first_pf;  
 
-    parse_multiboot_tags(multiboot_addr);
-
-    init_pf_allocater();
-    printk("Gimme some pages!\n");
-    void * pf;
-    for(i = 0; i<10; i++)
-    {
-        printk("%x\n", pf=MMU_pf_alloc());
-        MMU_pf_free(pf);
-        printk("freed %x\n", pf);
-    }
-
+    // #define NUM_PAGES 32452
+    // for(i=1; i<NUM_PAGES; i++)
+    // {
+    //     pf= MMU_pf_alloc();
+    //     //serialise_64bit((char*)pf, (uint64_t)pf);
+    //     for(int j=0; j<512; j++) 
+    //         ((uint64_t*)pf)[j] = (uint64_t)pf;
+    // }
+    // printk("done allocating\n");
+    // for(pf = first_pf; pf < first_pf + (PAGE_SIZE*NUM_PAGES); pf += PAGE_SIZE)
+    // {
+    //     //if ((uint64_t)pf != *((uint64_t*)pf))
+    //         //printk("pg: %x contents: %lx\n", pf, *((uint64_t*)pf));
+    //     for(int j=0; j<512; j++)
+    //         if(((uint64_t*)pf)[j] != (uint64_t)pf) printk("wrong: %lx ", ((uint64_t*)pf)[j]);
+    // }
+    // printk("done checking\n");
 
 
 
@@ -89,9 +98,4 @@ void kmain (void * multiboot_addr)
     }   
 }
 
-// TODO from "Handle Interrupts" Milestone
-
-// add assembly code for special error ints
-// print error mesage for unhandled errors
-// setup and configure tss
 

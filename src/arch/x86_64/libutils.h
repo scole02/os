@@ -4,10 +4,12 @@
 
 void itoa( int value, char * str, int base);
 void ltoa( long value, char * str, int base);
+void ultoa( uint64_t value, char * str, int base);
 void htoa( short value, char * str, int base);
 inline void _outb(uint16_t port, uint8_t val);
 inline uint8_t _inb(uint16_t port);
 inline void iowait();
+void serialise_64bit(uint8_t dest[8], uint64_t n);
 
 
 #endif

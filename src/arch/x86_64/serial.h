@@ -21,7 +21,7 @@ SerialState serial_state;
 void SERIAL_write(SerialState *state, int len, const char* buf);
 int start_tx();
 void serial_init();
-void init_state(struct SerialState *state);
+void init_serial_state(struct SerialState *state);
 short consumer_next(struct SerialState *state); // returns next element in char buf or -1
 int producer_add_char(char toAdd, struct SerialState *state);
 

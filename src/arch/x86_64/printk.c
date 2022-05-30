@@ -31,12 +31,27 @@ static void print_short(short h, int base)
     VGA_display_str(num_str); 
 }
 
+static void print_ushort(unsigned short h, int base)
+{   
+    char * num_str = "\0";
+    itoa(h, num_str, base);
+    VGA_display_str(num_str); 
+}
+
 static void print_long_hex(long l, int base)
 {   
     char * num_str = "\0";
     ltoa(l, num_str, base);
     VGA_display_str(num_str); 
 }
+
+static void print_ulong_hex(uint64_t l, int base)
+{   
+    char * num_str = "\0";
+    ultoa(l, num_str, base);
+    VGA_display_str(num_str); 
+}
+
 static void print_ptr(void * p)
 {
     char * num_str = "\0";
@@ -85,19 +100,19 @@ int printk(const char *fmt, ...)
                 case 'l':
                     fmt++;
                     if (*fmt == 'd') print_long_hex(va_arg(args, long), BASE10);
-                    else if (*fmt == 'u') print_long_hex(va_arg(args, unsigned long), BASE10);
+                    else if (*fmt == 'u') print_ulong_hex(va_arg(args, uint64_t), BASE10);
                     else if (*fmt == 'x') print_long_hex(va_arg(args, long), BASE16);
                     break;
                 case 'h':
                     fmt++;
                     if (*fmt == 'd') print_short(va_arg(args, int), BASE10);
-                    else if (*fmt == 'u') print_short(va_arg(args, unsigned int), BASE10);
+                    else if (*fmt == 'u') print_ushort(va_arg(args, unsigned int), BASE10);
                     else if (*fmt == 'x') print_short(va_arg(args, int), BASE16);
                     break;    
                 case 'q':
                     fmt++;
                     if (*fmt == 'd') print_long_hex(va_arg(args, long), BASE10);
-                    else if (*fmt == 'u') print_long_hex(va_arg(args, unsigned long), BASE10);
+                    else if (*fmt == 'u') print_ulong_hex(va_arg(args, uint64_t), BASE10);
                     else if (*fmt == 'x') print_long_hex(va_arg(args, long), BASE16);
                     break;                 
 

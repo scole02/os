@@ -1,50 +1,28 @@
 ; inspired by https://wiki.osdev.org/Interrupts_tutorial
 
+extern exception_handler
+extern err_exception_handler
+
 %macro isr_err_stub 1
 isr_stub_%+%1:
-    pop rsi
-    cli ; not needed if using interrupt gate, as opposed to trap gate
-    push rdi
-    push rsi
-    push rdx
-    push rcx
-    push r8
-    push r9
-    ; registers for other stuff
-    ; https://en.wikipedia.org/wiki/X86_calling_conventions#x86-64_calling_conventions
-    push rbx
-    push rsp
-    push rbp
-    push r12
-    push r13
-    push r14
-    push r15
-    mov rdi, %1
-    call exception_handler
-    pop r15
-    pop r14
-    pop r13
-    pop r12
-    pop rbp
-    pop rsp
-    pop rbx
-    pop r9
-    pop r8
-    pop rcx 
-    pop rdx
-    pop rsi
-    pop rdi
-    sti ; not needed if using interrupt gate, as opposed to trap gate
+    ; cli ; not needed if using interrupt gate, as opposed to trap gate
+    ;pop rax ; get error code
+    
+    mov rdi, %1 ; put isr_num into first C argument
+    call err_exception_handler
+    add rsp, 8
 
+    ; sti ; not needed if using interrupt gate, as opposed to trap gate
     iretq
 %endmacro
-; if writing for 64-bit, use iretq 
+
+
 
 %macro isr_no_err_stub 1
 isr_stub_%+%1:
     ; push registers used to store C arguments (ints and ptrs)
     ; https://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64#id10
-    cli ; not needed if using interrupt gate, as opposed to trap gate
+    ; cli ; not needed if using interrupt gate, as opposed to trap gate
     push rdi
     push rsi
     push rdx
@@ -75,12 +53,12 @@ isr_stub_%+%1:
     pop rdx
     pop rsi
     pop rdi
-    sti ; not needed if using interrupt gate, as opposed to trap gate
+    ; sti ; not needed if using interrupt gate, as opposed to trap gate
 
     iretq
 %endmacro
 
-extern exception_handler
+
 isr_no_err_stub 0
 isr_no_err_stub 1
 isr_no_err_stub 2

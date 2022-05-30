@@ -1,5 +1,5 @@
 CC = ~/opt/cross/bin/$(arch)-elf-gcc
-CFLAGS = -c -g -ffreestanding -fgnu89-inline -mno-red-zone
+CFLAGS = -c -g -ffreestanding -mno-red-zone -fgnu89-inline
 CC_warning_flags = -Wno-builtin-declaration-mismatch 
 arch ?= x86_64
 kernel := build/kernel-$(arch).bin
@@ -21,12 +21,18 @@ vga_obj := build/arch/$(arch)/vga.o
 
 
 # utils
+multiboot_src := src/arch/$(arch)/multiboot.c
+multiboot_obj := build/arch/$(arch)/multiboot.o
 libutils_src := src/arch/$(arch)/libutils.c
 libutils_obj := build/arch/$(arch)/libutils.o
 my_string_src := src/arch/$(arch)/my_string.c
 my_string_obj := build/arch/$(arch)/my_string.o
 printk_src := src/arch/$(arch)/printk.c
 printk_obj := build/arch/$(arch)/printk.o
+gdt_src := src/arch/$(arch)/gdt.c
+gdt_obj := build/arch/$(arch)/gdt.o
+memory_src := src/arch/$(arch)/memory.c
+memory_obj := build/arch/$(arch)/memory.o
 
 kmain_src := src/arch/$(arch)/kmain.c
 kmain_obj := build/arch/$(arch)/kmain.o
@@ -74,11 +80,18 @@ $(kernel): $(assembly_object_files) $(linker_script)
 	$(CC) $(CC_warning_flags) $(CFLAGS) $(pic_src) -o $(pic_obj)
 	$(CC) $(CC_warning_flags) $(CFLAGS) $(interrupts_src) -o $(interrupts_obj)
 	$(CC) $(CC_warning_flags) $(CFLAGS) $(serial_src) -o $(serial_obj)
+	$(CC) $(CC_warning_flags) $(CFLAGS) $(multiboot_src) -o $(multiboot_obj)
+	$(CC) $(CC_warning_flags) $(CFLAGS) $(gdt_src) -o $(gdt_obj)
+	$(CC) $(CC_warning_flags) $(CFLAGS) $(memory_src) -o $(memory_obj)
+
+
 
 
 	@ld -n -T $(linker_script) -o $(kernel) $(assembly_object_files) \
 	$(kmain_obj) $(my_string_obj) $(vga_obj) $(libutils_obj) $(printk_obj) \
-	$(ps2_obj) $(keyboard_obj) $(pic_obj) $(interrupts_obj) $(serial_obj)
+	$(ps2_obj) $(gdt_obj) $(keyboard_obj) $(pic_obj) $(interrupts_obj) $(serial_obj) \
+	$(multiboot_obj) $(memory_obj)
+	
 
 # compile assembly files
 build/arch/$(arch)/%.o: src/arch/$(arch)/%.asm
