@@ -1,8 +1,8 @@
 #include "gdt.h"
-#include "my_string.h"
-#include "printk.h"
+#include "../my_string.h"
+#include "../printk.h"
 
-#define IST_SIZE 256
+#define IST_SIZE 2048
 
 TSS tss_c;
 GDTDescriptor gdt_desc;
@@ -29,11 +29,10 @@ void init_gdt(void)
 	gdt_c.tss.addr_mid2 = (((uint64_t)&tss_c >> 16) & 0xFF); 
 	gdt_c.tss.addr_mid3 = (((uint64_t)&tss_c >> 24) & 0xFF); 
 	gdt_c.tss.addr_high4 = (((uint64_t)&tss_c >> 32) & 0xFFFFFFFF); 
-	//gdt_c.tss.G = 1;
+	gdt_c.tss.G = 1;
 	gdt_c.tss.seg_limit_low = 200;
 	gdt_desc.Size = sizeof(gdt_c);
 	gdt_desc.Offset = (uint64_t)&gdt_c;
 	ldGDT(&gdt_desc);
-	//ldTSS();
 }
 

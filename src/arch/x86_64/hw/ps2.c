@@ -1,7 +1,7 @@
-#include "my_string.h"
+#include "../my_string.h"
 #include "ps2.h"
-#include "printk.h"
-#include "libutils.h"
+#include "../printk.h"
+#include "../libutils.h"
 #include <stdint.h>
 
 

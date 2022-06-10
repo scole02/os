@@ -1,6 +1,8 @@
+#include <stdint.h>
+
 void * memset (void *dst, int c, int len)
 {
-  unsigned char *ptr = dst;
+  uint8_t *ptr = dst;
   while (len-- > 0)
     *ptr++ = c;
   return dst;

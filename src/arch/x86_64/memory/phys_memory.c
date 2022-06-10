@@ -1,6 +1,6 @@
-#include "memory.h"
+#include "phys_memory.h"
 #include "multiboot.h"
-#include "printk.h"
+#include "../printk.h"
 
 static uint64_t * free_mem_pool_head = 0;
 static uint64_t free_mem_pool_size = 0;

@@ -1,6 +1,6 @@
 #include "keyboard.h"
 #include "ps2.h"
-#include "printk.h"
+#include "../printk.h"
 #include <stdint.h>
 
 char ascii_lookup_tbl[128][5] = {

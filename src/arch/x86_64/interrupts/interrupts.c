@@ -1,11 +1,11 @@
 
 #include "interrupts.h"
-#include "keyboard.h"
-#include "printk.h"
+#include "../hw/keyboard.h"
+#include "../printk.h"
 #include "pic.h"
-#include "libutils.h"
-#include "serial.h"
-#include "my_string.h"
+#include "../libutils.h"
+#include "../hw/serial.h"
+#include "../my_string.h"
 
 #include <stdint.h>
 
@@ -81,7 +81,8 @@ void err_exception_handler(uint8_t isr_num, uint64_t error_code)
     printk("ERROR: %lx\nInterrupt: %d\n", isr_num, isr_num);
 }
 
-void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags, uint8_t ist) {
+void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags, uint8_t ist) 
+{
     idt_entry_t* descriptor = &idt[vector];
  
     descriptor->isr_low       = (uint64_t)isr & 0xFFFF;
@@ -101,7 +102,7 @@ void idt_init()
  
     for (uint8_t vector = 0; vector < 255; vector++) 
     {
-        if(vector == 0x00) idt_set_descriptor(vector, isr_stub_table[vector], 0x8E, 0);
+        if(vector == 13 || vector == 14) idt_set_descriptor(vector, isr_stub_table[vector], 0x8E, 1);
         else idt_set_descriptor(vector, isr_stub_table[vector], 0x8E, 0);
     }
  
@@ -109,7 +110,8 @@ void idt_init()
     __asm__ volatile ("sti"); // set the interrupt flag
 }
 
-void keybrd_int_init(void) {
+void keybrd_int_init(void) 
+{
     IRQ_clear_mask(KEYBOARD_INT_LINE);
 }
 

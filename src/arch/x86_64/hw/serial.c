@@ -1,8 +1,8 @@
 #include "serial.h"
-#include "interrupts.h"
-#include "pic.h"
-#include "libutils.h"
-#include "printk.h"
+#include "../interrupts/interrupts.h"
+#include "../interrupts/pic.h"
+#include "../libutils.h"
+#include "../printk.h"
 #include <stdint.h>
 
 volatile uint8_t SERIAL_buf_busy = 0; // serial is busy when set

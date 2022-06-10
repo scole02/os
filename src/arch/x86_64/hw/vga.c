@@ -1,5 +1,5 @@
-#include "my_string.h"
-#include "interrupts.h"
+#include "../my_string.h"
+#include "../interrupts/interrupts.h"
 #include "serial.h"
 
 #define VGA_BASE_ADDR 0xb8000

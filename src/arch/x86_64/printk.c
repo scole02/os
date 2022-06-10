@@ -1,4 +1,4 @@
-#include "vga.h"
+#include "hw/vga.h"
 #include "libutils.h"
 #include <stdarg.h>
 #include <stdint.h>
