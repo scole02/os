@@ -37,13 +37,15 @@ void kmain (void * multiboot_addr)
 
     parse_multiboot_tags(multiboot_addr);
     init_pf_allocater();
-    void * pml4 = MMU_pf_alloc(); 
-    memset(pml4, 0, PAGE_SIZE);
-    init_virt_memory(pml4);
+    // void * pml4 = MMU_pf_alloc(); 
+    // memset(pml4, 0, PAGE_SIZE);
+    //init_virt_memory(pml4); 
 
 
 
-
+    // TODO
+    // Finish virtual memory
+    // problems with idt and gdt?
 
     // while(1)
     // {
